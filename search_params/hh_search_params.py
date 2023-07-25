@@ -282,7 +282,7 @@ class HHVacSearchParams:
               f'Сортировка: {self.update_search_order[1]}\n')
 
 
-class HHEmpSearchParams():
+class HHEmpSearchParams:
     """
     Класс выбора ключевых параметров для запросов работодателей hh.ru
     """
@@ -414,7 +414,7 @@ class HHEmpSearchParams():
         self.update_region_and_region_id = \
             input('Введите область/город для поиска.\nИскомый текст должен быть на русском и длиннее 2 букв\n')
         self.update_show_without_vac = \
-            input("""Показывать компании без вакансий?\n1. Да\n2. Нет (по умолчанию)\n""")
+            input('Показывать компании без вакансий?\n1 - Да\n2 - Нет (по умолчанию)\n')
 
         print(f'\n---НОВЫЕ ПАРАМЕТРЫ hh.ru---\n'
               f'Текст поиска: {self.update_search_txt}\n'

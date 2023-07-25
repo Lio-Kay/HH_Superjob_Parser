@@ -1,11 +1,15 @@
-from configparser import ConfigParser
+"""
+Этот модуль содержит функцию для получения
+конфигурации подключения к ДБ
+"""
 
-import logging
+from configparser import ConfigParser
 from inspect import currentframe
+import logging as log
 import pathlib as pl
 
-
-logging.basicConfig(level=logging.DEBUG, filename='/project_logs.log', filemode='w')
+log.basicConfig(level=log.DEBUG,
+                filename='/project_logs.log', filemode='w')
 
 
 def config(filename=pl.Path.cwd() / 'db_func' / 'database.ini', section='postgresql') -> str:
@@ -14,7 +18,7 @@ def config(filename=pl.Path.cwd() / 'db_func' / 'database.ini', section='postgre
     :param section: Секция поиска
     :return: Словарь с параметрами для подключения к дб
     """
-    logging.debug(f'Started {currentframe().f_code.co_name} func')
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     parser = ConfigParser()
     parser.read(filename)
     db = []
@@ -23,7 +27,7 @@ def config(filename=pl.Path.cwd() / 'db_func' / 'database.ini', section='postgre
         for param in params:
             db.append(f'{param[0]}={param[1]}')
     else:
-        logging.exception(f'Section {section} is not found in the {filename} file.')
+        log.exception(f'Section {section} is not found in the {filename} file.')
         raise Exception(f'Section {section} is not found in the {filename} file.')
 
     return ' '.join(db)

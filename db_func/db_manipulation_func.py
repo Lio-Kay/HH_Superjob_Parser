@@ -295,7 +295,8 @@ class DBManager:
             with conn.cursor() as cur:
                 cur.execute(f'''SELECT * FROM employers''')
                 for idx, company in enumerate(cur.fetchall(), start=1):
-                    print(f"""№{idx}\nID: {company[0]}. Компания: {company[1]}. Кол-во вакансий: {company[2]}.""")
+                    print(f"""№{idx}\nID: {company[0]}. 
+                    Компания: {company[1]}. Кол-во вакансий: {company[2]}.""")
         conn.close()
         logging.debug(f'Got list of vacancies and their count')
 
@@ -343,7 +344,8 @@ class DBManager:
                     cur.execute(f"SELECT name FROM employers WHERE id='{vacancy[1]}'")
                     comp_name = cur.fetchall()
                     print(f"№{idx}\n"
-                          f"Компания: {comp_name[0][0]} Вакансия: {vacancy[2]}. ЗП: {vacancy[4]}. URL: {vacancy[10]}")
+                          f"Компания: {comp_name[0][0]} Вакансия: {vacancy[2]}. "
+                          f"ЗП: {vacancy[4]}. URL: {vacancy[10]}")
         conn.close()
         logging.debug(f'Got vacancies with high salary')
 
