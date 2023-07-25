@@ -331,6 +331,20 @@ class SuperjobEmpSearchParams:
         correct_region = SuperJobAPI.get_regions(params=new_region)['objects']
         return correct_region, number_of_found_regions
 
+    @property
+    def update_show_without_vac(self) -> bool:
+        return self.__only_with_vacancies
+
+    @update_show_without_vac.setter
+    def update_show_without_vac(self, value) -> None:
+        if value == '1':
+            self.__only_with_vacancies = False
+        elif value == '2':
+            self.__only_with_vacancies = True
+        else:
+            print('Неверный ввод')
+            self.__only_with_vacancies = True
+
     def superjob_set_params_for_a_search(self) -> None:
         """
         Основная логика выбора параметров для поиска

@@ -1,5 +1,5 @@
 from search_func.hh_search_func import get_vacancies_hh
-from search_func.superjob_search_func import get_vacancies_superjob
+from search_func.superjob_search_func import get_employers_superjob
 
 
 def select_platforms(current_search_platforms: str, SEARCH_PLATFORMS: str) -> str:
@@ -36,10 +36,10 @@ def get_vacancies(search_platforms: str, HH_API, hh_params, Superjob_API, superj
     if search_platforms == 'headhunter.ru':
         get_vacancies_hh(HH_API, hh_params)
     elif search_platforms == 'superjob.ru':
-        get_vacancies_superjob(Superjob_API, superjob_params)
+        get_employers_superjob(Superjob_API, superjob_params)
     elif search_platforms == 'headhunter.ru, superjob.ru':
         get_vacancies_hh(HH_API, hh_params)
-        get_vacancies_superjob(Superjob_API, superjob_params)
+        get_employers_superjob(Superjob_API, superjob_params)
 
 
 def get_employers(search_platforms: str, HH_API, hh_params, Superjob_API, superjob_params) -> None:
@@ -54,7 +54,7 @@ def get_employers(search_platforms: str, HH_API, hh_params, Superjob_API, superj
     if search_platforms == 'headhunter.ru':
         get_vacancies_hh(HH_API, hh_params)
     elif search_platforms == 'superjob.ru':
-        get_vacancies_superjob(Superjob_API, superjob_params)
+        get_employers_superjob(Superjob_API, superjob_params)
     elif search_platforms == 'headhunter.ru, superjob.ru':
         get_vacancies_hh(HH_API, hh_params)
-        get_vacancies_superjob(Superjob_API, superjob_params)
+        get_employers_superjob(Superjob_API, superjob_params)

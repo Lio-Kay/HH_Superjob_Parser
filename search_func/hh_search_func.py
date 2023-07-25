@@ -17,8 +17,8 @@ converter = CurrencyRates()
 def get_vacancies_hh(HH_API, hh_vac_params) -> None:
     """
     Основная логика поиска вакансий от hh.ru API
-    :param HH_API: Класс для работы c API hh.ru.
-    :param hh_vac_params: Параметры для поиска вакансий hh.ru.
+    :param HH_API: Класс для работы c API hh.ru
+    :param hh_vac_params: Параметры для поиска вакансий hh.ru
     """
     # Делаем первый запрос для получения кол-ва найденных вакансий
     first_vacancy_request: dict = HH_API.get_vacancies_by_keywords(hh_vac_params())
@@ -51,7 +51,7 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
         emp_industry: list = []
         for industry in emp_industries:
             emp_industry.append(industry.get('name'))
-        emp_industry: str = ' ,'.join(emp_industry)
+        emp_industry: str = ', '.join(emp_industry)
         emp_vac_count: int = employer.get('open_vacancies')
         # Адрес не всегда указан полностью, ловим ошибки
         try:
@@ -152,8 +152,9 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
             break
 
 
-def get_new_companies_hh(HH_API, hh_emp_params) -> None:
+def get_companies_hh(HH_API, hh_emp_params) -> None:
     """
+    Основная логика поиска компаний от superjob.ru API
     :param HH_API: Класс для API запросов
     :param hh_emp_params: Параметры для API запроса
     """
@@ -207,7 +208,7 @@ def get_new_companies_hh(HH_API, hh_emp_params) -> None:
                     continue
                 else:
                     for vacancy_num in range(emp_vac_count):
-                        save_all_vacancies(vacancy_num=vacancy_num, emp_id=emp_id, api=HH_API)
+                        save_all_vacancies(vacancy_num=vacancy_num, emp_id=emp_id, HH_API=HH_API)
         # Добавить в ЧС
         elif user_choice == 2:
             DBManager.blacklist_employer(emp_id=emp_id)
