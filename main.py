@@ -1,6 +1,6 @@
 from api.api_requests import HeadHunterAPI, SuperJobAPI
 from search_params.hh_search_params import HHVacSearchParams, HHEmpSearchParams
-from search_params.superjob_search_params import SuperjobSearchParams
+from search_params.superjob_search_params import SuperjobVacSearchParams
 from search_func.set_search_params import select_platforms, get_vacancies, get_employers
 from db_func.db_manipulation_func import DBCreator
 
@@ -57,7 +57,7 @@ def user_interface() -> None:
 
     # Экземпляры классов с параметрами поиска
     hh_vac_params = HHVacSearchParams()
-    superjob_vac_params = SuperjobSearchParams()
+    superjob_vac_params = SuperjobVacSearchParams()
     hh_emp_params = HHEmpSearchParams()
 
     # Поисковые платформы

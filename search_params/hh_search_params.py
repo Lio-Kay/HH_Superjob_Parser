@@ -16,17 +16,17 @@ class HHVacSearchParams:
                  salary: int = 80_000, only_w_salary: bool = False, only_w_salary_rus: str = 'Да',
                  search_order: str = 'publication_time', search_order_rus: str = 'По дате публикации'):
         """
-        :param keywords: Ключевые слова на языке запросов.
-        :param keywords_rus: Ключевые слова в читабельном виде.
-        :param region: Название региона.
-        :param region_id: ID региона.
-        :param employment: Типы занятости.
-        :param employment_rus: Типы занятости в читабельном виде.
-        :param salary: ЗП.
-        :param only_w_salary: Параметр только с указанием зп.
-        :param only_w_salary_rus: Параметр только с указанием зп в читабельном виде.
-        :param search_order: Способ сортировки.
-        :param search_order_rus: Способ сортировки в читабельном виде.
+        :param keywords: Ключевые слова на языке запросов
+        :param keywords_rus: Ключевые слова в читабельном виде
+        :param region: Название региона
+        :param region_id: ID региона
+        :param employment: Типы занятости
+        :param employment_rus: Типы занятости в читабельном виде
+        :param salary: ЗП
+        :param only_w_salary: Параметр только с указанием зп
+        :param only_w_salary_rus: Параметр только с указанием зп в читабельном виде
+        :param search_order: Способ сортировки
+        :param search_order_rus: Способ сортировки в читабельном виде
         """
 
         self.__keywords: list = keywords
@@ -290,11 +290,13 @@ class HHEmpSearchParams:
     # Текущая страница поиска
     page = 0
 
-    def __init__(self, text: str = '', region: str = 'Москва', region_id: int = 1, only_with_vacancies: bool = True):
+    def __init__(self, text: str = '', region: str = 'Москва',
+                 region_id: int = 1, only_with_vacancies: bool = True):
         """
-        :param text: Название компании для получения списка компаний.
-        :param region: Название региона.
-        :param region_id: ID региона.
+        :param text: Название компании для получения списка компаний
+        :param region: Название региона
+        :param region_id: ID региона
+        :param only_with_vacancies: Только компании с вакансиями
         """
 
         self.__text: str = text

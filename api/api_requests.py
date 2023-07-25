@@ -160,7 +160,7 @@ class SuperJobAPI(AbstractAPI):
         :return: Список вакансий на основании запроса
         """
         cls.vacancies_api: str = 'https://api.superjob.ru/2.0/vacancies/'
-        cls.vacancies_api: str = cls.vacancies_api + f'?keyword={params.update_keyword}&' \
+        cls.vacancies_api: str = cls.vacancies_api + f'?keyword={params.update_search_txt}&' \
                                                      f'order_field={params.update_search_order[0]}&' \
                                                      f'payment_from={params.update_salary}&' \
                                                      f'no_agreement={params.update_only_w_salary[0]}&' \

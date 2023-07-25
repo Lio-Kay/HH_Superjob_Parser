@@ -3,9 +3,9 @@ from api.api_requests import SuperJobAPI
 import re
 
 
-class SuperjobSearchParams:
+class SuperjobVacSearchParams:
     """
-    Класс выбора ключевых параметров для работы с API superjob.ru
+    Класс выбора ключевых параметров для запросов вакансий superjob.ru
     """
 
     page = 0
@@ -237,3 +237,118 @@ class SuperjobSearchParams:
               f'Ожидаемая зп: от {self.update_salary} руб.\n'
               f'Только с указанием зп: {self.update_only_w_salary[1]}\n'
               f'Сортировка: {self.update_search_order[1]}\n')
+
+
+class SuperjobEmpSearchParams:
+    """
+    Класс выбора ключевых параметров для запросов компаний superjob.ru
+    """
+
+    page = 0
+
+    def __init__(self, text: str = '', region: str = 'Москва',
+                 region_id: int = 4, only_with_vacancies: bool = True):
+        """
+        :param text: Ключевые слова на языке запросов.
+        :param region: Название региона.
+        :param region_id: ID региона.
+        :param only_with_vacancies: Только компании с вакансиями
+        """
+
+        self.__text: str = text
+        self.__region: str = region
+        self.__region_id: int = region_id
+        self.__only_with_vacancies: bool = only_with_vacancies
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.__text},{self.__region},{self.__region_id})'
+
+    def __str__(self):
+        return f'Параметры поиска:\nТекст для поиска: {self.__text}, Область поиска: {self.__region}.' \
+               f'Только с вакансиями: {self.__only_with_vacancies}'
+
+    @property
+    def update_search_txt(self) -> str:
+        return self.__text
+
+    @update_search_txt.setter
+    def update_search_txt(self, new_company_txt: str) -> None:
+        new_company_txt = new_company_txt.casefold().strip()
+        self.__text: str = new_company_txt
+
+    @property
+    def update_region_and_region_id(self) -> tuple:
+        return self.__region_id, self.__region
+
+    @update_region_and_region_id.setter
+    def update_region_and_region_id(self, new_region: str) -> None:
+        print(new_region)
+        print(self.update_region_and_region_id)
+        new_region: str = new_region.casefold()
+        results = self.update_region_loop(new_region)
+        # Если ничего не нашли - повторяем поиск
+        if results is False:
+            new_region: str = \
+                input('Введите область/город для поиска.\n'
+                      '\033[1m' + 'Искомый текст должен быть на русском и длиннее 2 букв\n' + '\033[0m').casefold()
+            results = self.update_region_loop(new_region)
+        print(f'Найдено {results[1]} результатов:')
+        # Выводим результаты
+        for idx, city in enumerate(results[0], start=1):
+            print(f'{idx}. {city["title"]}')
+            results[0][idx - 1].update({'Index': f'{idx}'})
+        user_specified_region: str = input('Уточните область/город по номеру:\n')
+        # Проверяем, что пользователь ввел значение для выбора области поиска из списка
+        while not any(d['Index'] == user_specified_region for d in results[0]):
+            print('Региона с таким номером нет в списке')
+            user_specified_region: str = input('Уточните область/город по номеру:\n')
+        # Обновляем ID для поиска
+        self.__region_id: int = \
+            list((entry['id'] for entry in results[0]
+                  if entry['Index'] == user_specified_region))[0]
+        # Обновляем текстовое обозначение области поиска
+        self.__region = \
+            list((entry['title'] for entry in results[0]
+                  if entry['Index'] == user_specified_region))[0]
+
+    @staticmethod
+    def update_region_loop(new_region) -> tuple[dict, int] or bool:
+        """
+        Цикл для update_region_and_region_id()
+        :return: Tuple со списком регионов и их кол-вом
+        """
+        while len(new_region) < 2 \
+                or not all([data.isalpha() for data in new_region]) \
+                or not bool(re.search('[а-яА-Я]', new_region)):
+            print('Введите корректные данные')
+            new_region: str = \
+                input('Введите область/город для поиска.\n'
+                      '\033[1m' + 'Искомый текст должен быть на русском и длиннее 2 букв\n' + '\033[0m').casefold()
+        number_of_found_regions = SuperJobAPI.get_regions(params=new_region)['total']
+        if number_of_found_regions == 0:
+            print(f'\nНайдено 0 результатов')
+            return False
+        correct_region = SuperJobAPI.get_regions(params=new_region)['objects']
+        return correct_region, number_of_found_regions
+
+    def superjob_set_params_for_a_search(self) -> None:
+        """
+        Основная логика выбора параметров для поиска
+        :return: Экземпляр класса с superjob_search_params
+        """
+        # Выбор названия компании для поиска
+        self.update_search_txt = \
+            input('Введите название компании для поиска\n')
+        if self.update_search_txt is False:
+            print('Недействительный ввод')
+            return
+        # Выбор региона
+        self.update_region_and_region_id = \
+            input('Введите область/город для поиска.\nИскомый текст должен быть на русском и длиннее 2 букв\n')
+        self.update_show_without_vac = \
+            input('Показывать компании без вакансий?\n1 - Да\n2 - Нет (по умолчанию)\n')
+
+        print(f'\n---НОВЫЕ ПАРАМЕТРЫ hh.ru---\n'
+              f'Текст поиска: {self.update_search_txt}\n'
+              f'Регион: {self.update_region_and_region_id[1]}\n'
+              f'Только с активными вакансиями: {self.update_show_without_vac}\n')
