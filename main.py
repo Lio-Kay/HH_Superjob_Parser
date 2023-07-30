@@ -1,6 +1,6 @@
 from api.api_requests import HeadHunterAPI, SuperJobAPI
 from search_params.hh_search_params import HHVacSearchParams, HHEmpSearchParams
-from search_params.superjob_search_params import SuperjobVacSearchParams
+from search_params.superjob_search_params import SuperjobVacSearchParams, SuperjobEmpSearchParams
 from search_func.set_search_params import select_platforms, get_vacancies, get_employers
 from db_func.db_manipulation_func import DBCreator
 
@@ -59,6 +59,7 @@ def user_interface() -> None:
     hh_vac_params = HHVacSearchParams()
     superjob_vac_params = SuperjobVacSearchParams()
     hh_emp_params = HHEmpSearchParams()
+    superjob_emp_params = SuperjobEmpSearchParams()
 
     # Поисковые платформы
     current_vac_search_platforms = 'headhunter.ru, superjob.ru'
@@ -75,7 +76,8 @@ def user_interface() -> None:
                     menu_input = input(MENU)
                 # Установить платформу для поиска
                 case '1':
-                    current_vac_search_platforms = select_platforms(current_vac_search_platforms, SEARCH_PLATFORMS)
+                    current_vac_search_platforms = (
+                        select_platforms(current_vac_search_platforms, SEARCH_PLATFORMS))
                 # Установить ключевые данные для hh.ru
                 case '2':
                     hh_vac_params.hh_set_params_for_a_search()
@@ -84,7 +86,8 @@ def user_interface() -> None:
                     superjob_vac_params.superjob_set_params_for_a_search()
                 # Вывести вакансии
                 case '9':
-                    get_vacancies(current_vac_search_platforms, HeadHunterAPI, hh_vac_params, SuperJobAPI, superjob_vac_params)
+                    get_vacancies(current_vac_search_platforms, HeadHunterAPI, hh_vac_params,
+                                  SuperJobAPI, superjob_vac_params)
         # Искать новые компании
         elif menu_input == '2':
             menu_emp_search_input = input(MENU_SEARCH_EMP)
@@ -94,16 +97,18 @@ def user_interface() -> None:
                     menu_input = input(MENU)
                 # Установить платформу для поиска
                 case '1':
-                    current_emp_search_platforms = select_platforms(current_emp_search_platforms, SEARCH_PLATFORMS)
+                    current_emp_search_platforms = select_platforms(current_emp_search_platforms,
+                                                                    SEARCH_PLATFORMS)
                 # Установить ключевые данные для hh.ru
                 case '2':
-                    hh_vac_params.hh_set_params_for_a_search()
+                    hh_emp_params.hh_set_params_for_a_search()
                 # Установить ключевые данные для superjob.ru
                 case '3':
-                    superjob_vac_params.superjob_set_params_for_a_search()
+                    superjob_emp_params.superjob_set_params_for_a_search()
                 # Вывести вакансии
                 case '9':
-                    get_employers(current_emp_search_platforms, HeadHunterAPI, hh_emp_params, SuperJobAPI)
+                    get_employers(current_emp_search_platforms, HeadHunterAPI, hh_emp_params,
+                                  SuperJobAPI, superjob_emp_params)
         # Получить данные из файла
         elif menu_input == '3':
             user_menu_get_input: str = input(MENU_WORK_WITH_DATA)

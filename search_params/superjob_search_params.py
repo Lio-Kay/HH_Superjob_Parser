@@ -282,8 +282,6 @@ class SuperjobEmpSearchParams:
 
     @update_region_and_region_id.setter
     def update_region_and_region_id(self, new_region: str) -> None:
-        print(new_region)
-        print(self.update_region_and_region_id)
         new_region: str = new_region.casefold()
         results = self.update_region_loop(new_region)
         # Если ничего не нашли - повторяем поиск

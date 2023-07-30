@@ -26,7 +26,7 @@ class AbstractAPI(ABC):
 
     @classmethod
     @abstractmethod
-    def get_vacancies_by_keywords(cls, params) -> dict:
+    def get_vacancies(cls, params) -> dict:
         """
         Поиск по вакансиям
         :param params: Данные из экземпляра класса hh_params в user_interface() main.py
@@ -87,7 +87,7 @@ class HeadHunterAPI(AbstractAPI):
                 print(f'Подключение к {cls.__name__} успешно')
 
     @classmethod
-    def get_vacancies_by_keywords(cls, params: dict) -> dict:
+    def get_vacancies(cls, params: dict) -> dict:
         """
         Поиск по вакансиям
         :param params: Данные из экземпляра класса hh_params в user_interface() main.py
@@ -115,6 +115,7 @@ class HeadHunterAPI(AbstractAPI):
         :param emp_id: id работодателя
         :return: Данные по работодателю
         """
+        emp_id: str = str(emp_id)
         data: dict = requests.get(cls.employers_api + emp_id, timeout=10).json()
 
         return data
@@ -153,14 +154,14 @@ class SuperJobAPI(AbstractAPI):
             print(requests.get(cls.vacancies_api, headers=cls.headers, timeout=10).status_code)
 
     @classmethod
-    def get_vacancies_by_keywords(cls, params) -> dict:
+    def get_vacancies(cls, params) -> dict:
         """
         Поиск по вакансиям
         :param params: Данные из экземпляра класса superjob_params в user_interface() main.py
         :return: Список вакансий на основании запроса
         """
         cls.vacancies_api: str = 'https://api.superjob.ru/2.0/vacancies/'
-        cls.vacancies_api: str = cls.vacancies_api + f'?keyword={params.update_search_txt}&' \
+        cls.vacancies_api: str = cls.vacancies_api + f'?keyword={params.update_keyword}&' \
                                                      f'order_field={params.update_search_order[0]}&' \
                                                      f'payment_from={params.update_salary}&' \
                                                      f'no_agreement={params.update_only_w_salary[0]}&' \
@@ -189,7 +190,8 @@ class SuperJobAPI(AbstractAPI):
         :param emp_id: id работодателя
         :return: Данные по работодателю
         """
-        data: dict = requests.get(cls.employers_api + emp_id, timeout=10).json()
+        emp_id: str = str(emp_id)
+        data: dict = requests.get(cls.employers_api + emp_id, headers=cls.headers, timeout=10).json()
 
         return data
 

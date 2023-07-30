@@ -21,20 +21,20 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
     :param hh_vac_params: Параметры для поиска вакансий hh.ru
     """
     # Делаем первый запрос для получения кол-ва найденных вакансий
-    first_vacancy_request: dict = HH_API.get_vacancies_by_keywords(hh_vac_params())
+    first_vacancy_request: dict = HH_API.get_vacancies(hh_vac_params())
     if first_vacancy_request.get('errors'):
         print(f'Ошибка {first_vacancy_request.get("errors")[0].get("type")}')
         return
     print(f'Найдено {first_vacancy_request["found"]} вакансий')
     if first_vacancy_request['found'] == 0:
-        print('Найдено 0 вакансий')
+        print('Вакансии не найдены')
         return
     # Создаем цикл на основе кол-ва найденных страниц (при условии - 1 вакансия на страницу)
     for page in range(0, first_vacancy_request['found']):
         # Увеличиваем параметр страница на 1
         hh_vac_params.page = page
         # Получаем данные по вакансии
-        vacancy: dict = HH_API.get_vacancies_by_keywords(hh_vac_params())
+        vacancy: dict = HH_API.get_vacancies(hh_vac_params())
         vac_id: int = vacancy.get('items', [])[0].get('id')
         # Проверяем ЧС
         if DBManager.check_blacklisted_vacancies(vac_id=vac_id):
@@ -152,7 +152,7 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
             break
 
 
-def get_companies_hh(HH_API, hh_emp_params) -> None:
+def get_employers_hh(HH_API, hh_emp_params) -> None:
     """
     Основная логика поиска компаний от superjob.ru API
     :param HH_API: Класс для API запросов
@@ -208,7 +208,7 @@ def get_companies_hh(HH_API, hh_emp_params) -> None:
                     continue
                 else:
                     for vacancy_num in range(emp_vac_count):
-                        save_all_vacancies(vacancy_num=vacancy_num, emp_id=emp_id, HH_API=HH_API)
+                        save_vacancy_by_id(vacancy_num=vacancy_num, emp_id=emp_id, HH_API=HH_API)
         # Добавить в ЧС
         elif user_choice == 2:
             DBManager.blacklist_employer(emp_id=emp_id)
@@ -220,7 +220,7 @@ def get_companies_hh(HH_API, hh_emp_params) -> None:
             return
 
 
-def save_all_vacancies(vacancy_num: int, emp_id: int, HH_API) -> None:
+def save_vacancy_by_id(vacancy_num: int, emp_id: int, HH_API) -> None:
     """
     :param vacancy_num: Порядковый номер вакансии для for loop
     :param emp_id: ID компании
@@ -229,7 +229,7 @@ def save_all_vacancies(vacancy_num: int, emp_id: int, HH_API) -> None:
     search_params: dict = {'page': vacancy_num,
                            'per_page': 1,
                            'employer_id': emp_id}
-    vacancy = HH_API.get_vacancies_hh(search_params)
+    vacancy = HH_API.get_vacancies(search_params)
     vac_id: int = int(vacancy.get('items', [])[0].get('id'))
     vac_name: str = vacancy.get('items', [])[0].get('name')
     # Адрес не всегда указан полностью, ловим ошибки

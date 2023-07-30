@@ -24,12 +24,12 @@ class DBCreator:
         conn = db.connect(db_config_initial)
         conn.autocommit = True
         cur = conn.cursor()
-        cur.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = 'hh_vacancies'")
+        cur.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = 'hh_superjob_data'")
         exists = cur.fetchone()
         if not exists:
-            cur.execute(f'CREATE DATABASE hh_vacancies')
+            cur.execute(f'CREATE DATABASE hh_superjob_data')
         conn.close()
-        logging.debug(f'Created DB hh_vacancies')
+        logging.debug(f'Created DB hh_superjob_data')
 
     @classmethod
     def create_tables(cls) -> None:
@@ -44,7 +44,7 @@ class DBCreator:
         CREATE TABLE IF NOT EXISTS employers(
         id INT,
         name VARCHAR(100) NOT NULL,
-        industry VARCHAR(50),
+        industry VARCHAR(500),
         vac_count INT,
         url VARCHAR(100) NOT NULL,
         PRIMARY KEY(id))
