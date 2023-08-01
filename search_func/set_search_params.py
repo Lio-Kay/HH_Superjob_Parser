@@ -46,10 +46,10 @@ def get_employers(search_platforms: str, HH_API, hh_params, Superjob_API, superj
     """
     Функция блока user_interface() для начала запросов к выбранным API
     :param search_platforms: Строка с выбранными платформами для поиска
-    :param hh_params: Параметры для поиска вакансий hh.ru
+    :param hh_params: Параметры для поиска компаний hh.ru
     :param HH_API: Класс для работы c API hh.ru
     :param Superjob_API: Класс для работы c API superjob.ru
-    :param superjob_params: Параметры для поиска вакансий superjob.ru
+    :param superjob_params: Параметры для поиска компаний superjob.ru
     """
     if search_platforms == 'headhunter.ru':
         get_employers_hh(HH_API, hh_params)

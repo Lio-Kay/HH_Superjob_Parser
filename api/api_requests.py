@@ -175,13 +175,22 @@ class SuperJobAPI(AbstractAPI):
         return data
 
     @classmethod
-    def get_employers_by_keywords(cls, params: dict) -> dict:
+    def get_employers_by_keywords(cls, params) -> dict:
         """
         Поиск по работодателям
         :param params: Данные из экземпляра класса superjob_params в user_interface() main.py
         :return: Список компаний на основании запроса
         """
-        pass
+        cls.employers_api: str = 'https://api.superjob.ru/2.0/vacancies/'
+        cls.employers_api: str = cls.employers_api + f'?keyword={params.update_search_txt}&' \
+                                                     f't={params.update_region_and_region_id[0]}&' \
+                                                     f'all={params.update_show_without_vac}&' \
+                                                     f'count={1}&' \
+                                                     f'page={params.page}'
+
+        data: dict = requests.get(url=cls.employers_api, headers=cls.headers, timeout=10).json()
+
+        return data
 
     @classmethod
     def get_employer_by_id(cls, emp_id: str) -> dict:
