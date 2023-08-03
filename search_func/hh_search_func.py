@@ -1,27 +1,31 @@
+"""
+Этот файл содержит в себе функции для получения данных от hh.ru,
+используя функции API запросов в api_requests.py.
+"""
+
 import logging as log
 import pathlib as pl
-
-from forex_python.converter import CurrencyRates
 from inspect import currentframe
+from forex_python.converter import CurrencyRates
 
 from db_func.db_manipulation_func import DBManager
-from search_func.search_navigation import get_vacancies_navigation, get_companies_navigation
+from search_func.search_navigation import get_vacancies_navigation, get_employers_navigation
 
-
-log.basicConfig(level=log.DEBUG, filename=pl.Path.cwd() / 'project_logs.log', filemode='w')
-
+log.basicConfig(level=log.DEBUG,
+                filename=pl.Path.cwd() / 'project_logs.log', filemode='w')
 
 converter = CurrencyRates()
 
 
-def get_vacancies_hh(HH_API, hh_vac_params) -> None:
+def get_vacancies_hh(HH_api, hh_vac_params) -> None:
     """
-    Основная логика поиска вакансий от hh.ru API
-    :param HH_API: Класс для работы c API hh.ru
-    :param hh_vac_params: Параметры для поиска вакансий hh.ru
+    Основная логика поиска вакансий от hh.ru API.
+    :param HH_api: Класс для работы c API hh.ru.
+    :param hh_vac_params: Параметры для поиска вакансий hh.ru.
     """
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     # Делаем первый запрос для получения кол-ва найденных вакансий
-    first_vacancy_request: dict = HH_API.get_vacancies(hh_vac_params())
+    first_vacancy_request: dict = HH_api.get_vacancies_by_keyword(hh_vac_params())
     if first_vacancy_request.get('errors'):
         print(f'Ошибка {first_vacancy_request.get("errors")[0].get("type")}')
         return
@@ -34,7 +38,7 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
         # Увеличиваем параметр страница на 1
         hh_vac_params.page = page
         # Получаем данные по вакансии
-        vacancy: dict = HH_API.get_vacancies(hh_vac_params())
+        vacancy: dict = HH_api.get_vacancies_by_keyword(hh_vac_params())
         vac_id: int = vacancy.get('items', [])[0].get('id')
         # Проверяем ЧС
         if DBManager.check_blacklisted_vacancies(vac_id=vac_id):
@@ -44,10 +48,10 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
             continue
         emp_id: int = vacancy.get('items', [])[0].get('employer').get('id')
         # Получаем данные по работодателю
-        employer: dict = HH_API.get_employer_by_id(emp_id)
+        employer: dict = HH_api.get_employer_by_id(emp_id)
         vac_name: str = vacancy.get('items', [])[0].get('name')
         emp_name: str = vacancy.get('items', [])[0].get('employer').get('name')
-        emp_industries: str = employer.get('industries', [])
+        emp_industries: list = employer.get('industries', [])
         emp_industry: list = []
         for industry in emp_industries:
             emp_industry.append(industry.get('name'))
@@ -105,10 +109,12 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
         except AttributeError:
             vac_pay_gross: bool = False
         try:
-            vac_schedule: str or None = vacancy.get('items', [])[0].get('employment', None).get('name', None)
+            vac_schedule: str or None = (vacancy.get('items', [])[0]
+                                         .get('employment', None).get('name', None))
         except AttributeError:
             vac_schedule: str or None = None
-        vac_requirement: str = vacancy.get('items', [])[0].get('snippet').get('requirement', None)
+        vac_requirement: str = (vacancy.get('items', [])[0]
+                                .get('snippet').get('requirement', None))
         vac_responsibility: str = vacancy.get('items', [])[0].get('snippet').get('responsibility', None)
         vac_url: str = vacancy.get('items', [])[0].get('alternate_url')
         emp_url: str = vacancy.get('items', [])[0].get('employer').get('alternate_url')
@@ -134,11 +140,12 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
         user_choice: int = get_vacancies_navigation()
         # Сохранить в файл и добавить в ЧС
         if user_choice == 1:
-            DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name, industry=emp_industry,
+            DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name,
+                                          industry=emp_industry,
                                           vac_count=emp_vac_count, url=emp_url)
-            DBManager.save_vacancy_to_db(vac_id=vac_id, employer_id=emp_id, name=vac_name, area=vac_area,
-                                         salary=vac_pay, currency=vac_pay_curr, gross=vac_pay_gross,
-                                         schedule=vac_schedule,
+            DBManager.save_vacancy_to_db(vac_id=vac_id, employer_id=emp_id, name=vac_name,
+                                         area=vac_area, salary=vac_pay, currency=vac_pay_curr,
+                                         gross=vac_pay_gross, schedule=vac_schedule,
                                          requirement=vac_requirement, responsibility=vac_responsibility,
                                          url=vac_url)
         # Добавить в ЧС
@@ -152,14 +159,15 @@ def get_vacancies_hh(HH_API, hh_vac_params) -> None:
             break
 
 
-def get_employers_hh(HH_API, hh_emp_params) -> None:
+def get_employers_hh(HH_api, hh_emp_params) -> None:
     """
-    Основная логика поиска компаний от superjob.ru API
-    :param HH_API: Класс для API запросов
-    :param hh_emp_params: Параметры для API запроса
+    Основная логика поиска компаний от hh.ru API.
+    :param HH_api: Класс для API запросов.
+    :param hh_emp_params: Параметры для API запроса.
     """
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     # Делаем первый запрос для получения кол-ва найденных компаний
-    first_company_request: dict = HH_API.get_employers_by_keywords(hh_emp_params())
+    first_company_request: dict = HH_api.get_employers_by_keywords(hh_emp_params())
     if first_company_request.get('errors'):
         print(f'Ошибка {first_company_request.get("errors")[0].get("type")}')
         return
@@ -170,7 +178,7 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
     # Создаем цикл на основе кол-ва найденных страниц (при условии - 1 компания на страницу)
     for page in range(0, first_company_request['found']):
         hh_emp_params.page = page
-        emp: dict = HH_API.get_employers_by_keywords(hh_emp_params())
+        emp: dict = HH_api.get_employers_by_keywords(hh_emp_params())
         emp_id: int = int(emp.get('items', [])[0].get('id'))
         # Проверяем ЧС
         if DBManager.check_blacklisted_employer(emp_id=emp_id):
@@ -178,8 +186,8 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
         # Проверяем существующие вакансии
         if DBManager.check_employer_in_db(emp_id=emp_id):
             continue
-        employer: dict = HH_API.get_employer_by_id(emp_id)
-        emp_industries: str = employer.get('industries', [])
+        employer: dict = HH_api.get_employer_by_id(emp_id)
+        emp_industries: list = employer.get('industries', [])
         emp_industry: list = []
         for industry in emp_industries:
             emp_industry.append(industry.get('name'))
@@ -195,7 +203,7 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
             f'Кол-во вакансий компании: {emp_vac_count}. Ссылка на компанию: {emp_url}')
 
         # Выводим окно с выбором дальнейших действий
-        user_choice: int = get_companies_navigation()
+        user_choice: int = get_employers_navigation()
         # Сохранить в дб и добавить в ЧС
         if user_choice == 1:
             DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name, industry=emp_industry,
@@ -206,9 +214,8 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
                 if emp_vac_count == 0:
                     print('У компании нет активных вакансий')
                     continue
-                else:
-                    for vacancy_num in range(emp_vac_count):
-                        save_vacancy_by_id(vacancy_num=vacancy_num, emp_id=emp_id, HH_API=HH_API)
+                for vacancy_num in range(emp_vac_count):
+                    save_vacancy_by_id(vacancy_num=vacancy_num, emp_id=emp_id, HH_api=HH_api)
         # Добавить в ЧС
         elif user_choice == 2:
             DBManager.blacklist_employer(emp_id=emp_id)
@@ -220,16 +227,17 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
             return
 
 
-def save_vacancy_by_id(vacancy_num: int, emp_id: int, HH_API) -> None:
+def save_vacancy_by_id(vacancy_num: int, emp_id: int, HH_api) -> None:
     """
     :param vacancy_num: Порядковый номер вакансии для for loop
     :param emp_id: ID компании
-    :param HH_API: Класс для API запросов
+    :param HH_api: Класс для API запросов
     """
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     search_params: dict = {'page': vacancy_num,
                            'per_page': 1,
                            'employer_id': emp_id}
-    vacancy = HH_API.get_vacancies(search_params)
+    vacancy = HH_api.get_vacancies_by_keyword(search_params)
     vac_id: int = int(vacancy.get('items', [])[0].get('id'))
     vac_name: str = vacancy.get('items', [])[0].get('name')
     # Адрес не всегда указан полностью, ловим ошибки

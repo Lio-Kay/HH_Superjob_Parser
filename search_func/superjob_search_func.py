@@ -1,26 +1,30 @@
+"""
+Этот файл содержит в себе функции для получения данных от superjob.ru,
+используя функции API запросов в api_requests.py.
+"""
+
 import logging as log
 import pathlib as pl
-
-from forex_python.converter import CurrencyRates
 from inspect import currentframe
-from search_func.search_navigation import get_vacancies_navigation, get_companies_navigation
+from forex_python.converter import CurrencyRates
 
 from db_func.db_manipulation_func import DBManager
+from search_func.search_navigation import get_vacancies_navigation, get_employers_navigation
 
-
-log.basicConfig(level=log.DEBUG, filename=pl.Path.cwd() / 'project_logs.log', filemode='w')
-
+log.basicConfig(level=log.DEBUG,
+                filename=pl.Path.cwd() / 'project_logs.log', filemode='w')
 
 converter = CurrencyRates()
 
 
 def get_vacancies_superjob(SuperJobAPI, superjob_vac_params):
     """
-    Основная логика поиска вакансий от superjob.ru API
-    :param SuperJobAPI: Класс для работы c API superjob.ru
-    :param superjob_vac_params: Параметры для поиска вакансий superjob.ru
+    Основная логика поиска вакансий от superjob.ru API.
+    :param SuperJobAPI: Класс для работы c API superjob.ru.
+    :param superjob_vac_params: Параметры для поиска вакансий superjob.ru.
     """
-    first_vacancy_request: dict = SuperJobAPI.get_vacancies(superjob_vac_params)
+    log.debug(f'Started {currentframe().f_code.co_name} func')
+    first_vacancy_request: dict = SuperJobAPI.get_vacancies_by_keyword(superjob_vac_params)
     if first_vacancy_request.get('error'):
         print(f'Ошибка {first_vacancy_request.get("error").get("message")}')
         return
@@ -31,7 +35,7 @@ def get_vacancies_superjob(SuperJobAPI, superjob_vac_params):
     for page in range(first_vacancy_request.get("total")):
         # Увеличиваем параметр страница на 1
         superjob_vac_params.page = page
-        vacancy: dict = SuperJobAPI.get_vacancies(superjob_vac_params)
+        vacancy: dict = SuperJobAPI.get_vacancies_by_keyword(superjob_vac_params)
         vac_id: int = vacancy.get('objects', [])[0].get('id')
         # Проверяем на наличие вакансии в ЧС
         if DBManager.check_blacklisted_vacancies(vac_id=vac_id):
@@ -79,7 +83,8 @@ def get_vacancies_superjob(SuperJobAPI, superjob_vac_params):
         if vac_area is None:
             vac_area: str = 'Не указан'
         try:
-            vac_schedule: str or None = vacancy.get('objects', [])[0].get('type_of_work').get('title')
+            vac_schedule: str or None = (
+                vacancy.get('objects', [])[0].get('type_of_work').get('title'))
         except AttributeError:
             vac_schedule: str or None = None
         vac_requirement: str = vacancy.get('objects', [])[0].get('candidat', 'Не указанны')
@@ -108,11 +113,12 @@ def get_vacancies_superjob(SuperJobAPI, superjob_vac_params):
         user_choice: int = get_vacancies_navigation()
         # Сохранить в файл и добавить в ЧС
         if user_choice == 1:
-            DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name, industry=emp_industry,
+            DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name,
+                                          industry=emp_industry,
                                           vac_count=emp_vac_count, url=emp_url)
-            DBManager.save_vacancy_to_db(vac_id=vac_id, employer_id=emp_id, name=vac_name, area=vac_area,
-                                         salary=vac_pay, currency=vac_pay_curr, gross=vac_pay_gross,
-                                         schedule=vac_schedule,
+            DBManager.save_vacancy_to_db(vac_id=vac_id, employer_id=emp_id, name=vac_name,
+                                         area=vac_area, salary=vac_pay, currency=vac_pay_curr,
+                                         gross=vac_pay_gross, schedule=vac_schedule,
                                          requirement=vac_requirement, responsibility=vac_responsibility,
                                          url=vac_url)
         # Добавить в ЧС
@@ -128,10 +134,11 @@ def get_vacancies_superjob(SuperJobAPI, superjob_vac_params):
 
 def get_employers_superjob(SuperJobAPI, superjob_params):
     """
-    Основная логика поиска компаний от superjob.ru API
-    :param SuperJobAPI: Класс для работы c API superjob.ru
-    :param superjob_params: Параметры для поиска вакансий superjob.ru
+    Основная логика поиска компаний от superjob.ru API.
+    :param SuperJobAPI: Класс для работы c API superjob.ru.
+    :param superjob_params: Параметры для поиска вакансий superjob.ru.
     """
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     # Делаем первый запрос для получения кол-ва найденных компаний
     first_company_request: dict = SuperJobAPI.get_employers_by_keywords(superjob_params)
     if first_company_request.get('errors'):
@@ -182,7 +189,8 @@ def get_employers_superjob(SuperJobAPI, superjob_params):
                     print('У компании нет активных вакансий')
                 else:
                     for vacancy_num in range(emp_vac_count):
-                        save_vacancy_by_id(vacancy_num=vacancy_num, emp_id=emp_id, SuperjobAPI=SuperJobAPI)
+                        save_vacancy_by_id(vacancy_num=vacancy_num,
+                                           emp_id=emp_id, SuperjobAPI=SuperJobAPI)
         # Добавить в ЧС
         elif user_choice == 2:
             DBManager.blacklist_employer(emp_id=emp_id)
@@ -196,10 +204,11 @@ def get_employers_superjob(SuperJobAPI, superjob_params):
 
 def save_vacancy_by_id(vacancy_num: int, emp_id: int, SuperjobAPI) -> None:
     """
-    :param vacancy_num: Порядковый номер вакансии для for loop
-    :param emp_id: ID компании
-    :param SuperjobAPI: Класс для API запросов
+    :param vacancy_num: Порядковый номер вакансии для for loop.
+    :param emp_id: ID компании.
+    :param SuperjobAPI: Класс для API запросов.
     """
+    log.debug(f'Started {currentframe().f_code.co_name} func')
     search_params: dict = {'page': vacancy_num,
                            'id_client': emp_id}
     vacancy = SuperjobAPI.get_vacancies_by_id(search_params)
@@ -218,8 +227,6 @@ def save_vacancy_by_id(vacancy_num: int, emp_id: int, SuperjobAPI) -> None:
     emp_industry: list = []
     for industry in emp_industries:
         emp_industry.append(industry.get('title'))
-    emp_industry: str = ', '.join(emp_industry)
-    emp_vac_count: int = employer.get('vacancy_count')
     vac_pay_from: int or str = vacancy.get('objects', [])[0].get('payment_from', 0)
     vac_pay_to: int or str = vacancy.get('objects', [])[0].get('payment_to', 0)
     if vac_pay_to and vac_pay_from:
@@ -244,7 +251,6 @@ def save_vacancy_by_id(vacancy_num: int, emp_id: int, SuperjobAPI) -> None:
         vac_pay_curr: str = 'RUB'
     else:
         vac_pay_curr: str = 'RUB'
-    vac_employer: str = vacancy.get('objects', [])[0].get('firm_name')
     # Адрес не всегда указан полностью, ловим ошибки
     vac_area: dict or str = vacancy.get('objects', [])[0].get('address', 'Не указан')
     if vac_area is None:
@@ -260,7 +266,6 @@ def save_vacancy_by_id(vacancy_num: int, emp_id: int, SuperjobAPI) -> None:
     if vac_requirement is None:
         vac_requirement = 'Не указанны'
     vac_url: str = vacancy.get('objects', [])[0].get('link')
-    emp_url: str = employer.get('link')
     # Делаем вывод красивым
     if vac_pay_curr == 'RUR':
         vac_pay_curr: str = 'Руб'

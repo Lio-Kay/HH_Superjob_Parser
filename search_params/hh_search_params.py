@@ -1,11 +1,16 @@
-from api.api_requests import HeadHunterAPI
+"""
+Этот файл содержит классы для выбора
+поисковых параметров hh.ru.
+"""
 
 import re
+
+from api.api_requests import HeadHunterAPI
 
 
 class HHVacSearchParams:
     """
-    Класс выбора ключевых параметров для запросов вакансий hh.ru
+    Класс выбора ключевых параметров для запросов вакансий hh.ru.
     """
 
     # Текущая страница поиска
@@ -16,17 +21,17 @@ class HHVacSearchParams:
                  salary: int = 80_000, only_w_salary: bool = False, only_w_salary_rus: str = 'Да',
                  search_order: str = 'publication_time', search_order_rus: str = 'По дате публикации'):
         """
-        :param keywords: Ключевые слова на языке запросов
-        :param keywords_rus: Ключевые слова в читабельном виде
-        :param region: Название региона
-        :param region_id: ID региона
-        :param employment: Типы занятости
-        :param employment_rus: Типы занятости в читабельном виде
-        :param salary: ЗП
-        :param only_w_salary: Параметр только с указанием зп
-        :param only_w_salary_rus: Параметр только с указанием зп в читабельном виде
-        :param search_order: Способ сортировки
-        :param search_order_rus: Способ сортировки в читабельном виде
+        :param keywords: Ключевые слова на языке запросов.
+        :param keywords_rus: Ключевые слова в читабельном виде.
+        :param region: Название региона.
+        :param region_id: ID региона.
+        :param employment: Типы занятости.
+        :param employment_rus: Типы занятости в читабельном виде.
+        :param salary: ЗП.
+        :param only_w_salary: Параметр только с указанием зп.
+        :param only_w_salary_rus: Параметр только с указанием зп в читабельном виде.
+        :param search_order: Способ сортировки.
+        :param search_order_rus: Способ сортировки в читабельном виде.
         """
 
         self.__keywords: list = keywords
@@ -87,8 +92,8 @@ class HHVacSearchParams:
     @staticmethod
     def update_keywords_loop(new_keywords) -> str or list:
         """
-        Цикл для update_keywords()
-        :return: Tuple со списком регионов и их кол-вом
+        Цикл для update_keywords().
+        :return: Tuple со списком регионов и их кол-вом.
         """
         while new_keywords == ['']:
             print('Введите корректные данные')
@@ -173,30 +178,30 @@ class HHVacSearchParams:
 
     def update_employment_loop(self, new_employment: str) -> bool:
         """
-        Цикл для update_employment_and_emp_rus()
-        :return: False если ввод не поступил
+        Цикл для update_employment_and_emp_rus().
+        :return: False если ввод не поступил.
         """
         if new_employment == '1':
             self.__employment_rus.add('Полная')
             self.__employment.add('full')
             return True
-        elif new_employment == '2':
+        if new_employment == '2':
             self.__employment_rus.add('Частичная')
             self.__employment.add('part')
             return True
-        elif new_employment == '3':
+        if new_employment == '3':
             self.__employment_rus.add('Проектная')
             self.__employment.add('project')
             return True
-        elif new_employment == '4':
+        if new_employment == '4':
             self.__employment_rus.add('Стажировка')
             self.__employment.add('probation')
             return True
-        elif new_employment == '5':
+        if new_employment == '5':
             self.__employment_rus.clear()
             self.__employment.clear()
             return True
-        elif new_employment == '':
+        if new_employment == '':
             return False
 
     @property
@@ -244,8 +249,7 @@ class HHVacSearchParams:
 
     def hh_set_params_for_a_search(self) -> None:
         """
-        Основная логика выбора параметров для поиска
-        :return: экземпляр класса hh_search_params
+        Основная логика выбора параметров для поиска.
         """
         # Выбор ключевых слов для поиска
         self.update_keywords = \
@@ -284,7 +288,7 @@ class HHVacSearchParams:
 
 class HHEmpSearchParams:
     """
-    Класс выбора ключевых параметров для запросов работодателей hh.ru
+    Класс выбора ключевых параметров для запросов работодателей hh.ru.
     """
 
     # Текущая страница поиска
@@ -293,10 +297,10 @@ class HHEmpSearchParams:
     def __init__(self, text: str = '', region: str = 'Москва',
                  region_id: int = 1, only_with_vacancies: bool = True):
         """
-        :param text: Название компании для получения списка компаний
-        :param region: Название региона
-        :param region_id: ID региона
-        :param only_with_vacancies: Только компании с вакансиями
+        :param text: Название работодателя для получения списка компаний.
+        :param region: Название региона.
+        :param region_id: ID региона.
+        :param only_with_vacancies: Только работодатели с вакансиями.
         """
 
         self.__text: str = text
@@ -313,7 +317,7 @@ class HHEmpSearchParams:
 
     def __call__(self, *args, **kwargs) -> dict:
         """
-        :return: Словарь для API запроса
+        :return: Словарь для API запроса.
         """
         return {'page': self.page,
                 'per_page': 1,
@@ -369,8 +373,8 @@ class HHEmpSearchParams:
     @staticmethod
     def update_region_loop(new_region) -> tuple[dict, int] or bool:
         """
-        Цикл для update_region_and_region_id()
-        :return: Tuple со списком регионов и их кол-вом
+        Цикл для update_region_and_region_id().
+        :return: Tuple со списком регионов и их кол-вом.
         """
         while len(new_region) < 2 \
                 or not all([data.isalpha() for data in new_region]) \
@@ -403,8 +407,7 @@ class HHEmpSearchParams:
 
     def hh_set_params_for_a_search(self) -> None:
         """
-        Основная логика выбора параметров для поиска
-        :return: экземпляр класса hh_search_params
+        Основная логика выбора параметров для поиска.
         """
         # Выбор названия компании для поиска
         self.update_search_txt = \

@@ -1,6 +1,11 @@
-from api.api_requests import SuperJobAPI
+"""
+Этот файл содержит классы для выбора
+поисковых параметров superjob.ru.
+"""
 
 import re
+
+from api.api_requests import SuperJobAPI
 
 
 class SuperjobVacSearchParams:
@@ -93,8 +98,8 @@ class SuperjobVacSearchParams:
     @staticmethod
     def update_region_loop(new_region) -> tuple[dict, int] or bool:
         """
-        Цикл для update_region_and_region_id()
-        :return: Tuple со списком регионов и их кол-вом
+        Цикл для update_region_and_region_id().
+        :return: Tuple со списком регионов и их кол-вом.
         """
         while len(new_region) < 2 \
                 or not all([data.isalpha() for data in new_region]) \
@@ -202,7 +207,6 @@ class SuperjobVacSearchParams:
     def superjob_set_params_for_a_search(self) -> None:
         """
         Основная логика выбора параметров для поиска
-        :return: Экземпляр класса с superjob_search_params
         """
         # Выбор ключевых слов для поиска
         self.update_keyword = input('Введите ключевое слово или нажмите Enter для пропуска\n')
@@ -239,7 +243,7 @@ class SuperjobVacSearchParams:
 
 class SuperjobEmpSearchParams:
     """
-    Класс выбора ключевых параметров для запросов компаний superjob.ru
+    Класс выбора ключевых параметров для запросов работодателей superjob.ru.
     """
 
     page = 0
@@ -250,7 +254,7 @@ class SuperjobEmpSearchParams:
         :param text: Ключевые слова на языке запросов.
         :param region: Название региона.
         :param region_id: ID региона.
-        :param only_with_vacancies: Только компании с вакансиями
+        :param only_with_vacancies: Только работодатели с вакансиями
         """
 
         self.__text: str = text
@@ -310,8 +314,8 @@ class SuperjobEmpSearchParams:
     @staticmethod
     def update_region_loop(new_region) -> tuple[dict, int] or bool:
         """
-        Цикл для update_region_and_region_id()
-        :return: Tuple со списком регионов и их кол-вом
+        Цикл для update_region_and_region_id().
+        :return: Tuple со списком регионов и их кол-вом.
         """
         while len(new_region) < 2 \
                 or not all([data.isalpha() for data in new_region]) \
@@ -328,7 +332,7 @@ class SuperjobEmpSearchParams:
         return correct_region, number_of_found_regions
 
     @property
-    def update_show_without_vac(self) -> bool:
+    def update_show_without_vac(self) -> int:
         return self.__only_with_vacancies
 
     @update_show_without_vac.setter
@@ -343,8 +347,7 @@ class SuperjobEmpSearchParams:
 
     def superjob_set_params_for_a_search(self) -> None:
         """
-        Основная логика выбора параметров для поиска
-        :return: Экземпляр класса с superjob_search_params
+        Основная логика выбора параметров для поиска.
         """
         # Выбор названия компании для поиска
         self.update_search_txt = \
