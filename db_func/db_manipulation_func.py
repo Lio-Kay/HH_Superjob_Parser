@@ -28,7 +28,6 @@ class DBCreator:
         exists = cur.fetchone()
         if not exists:
             cur.execute(f'CREATE DATABASE hh_superjob_data')
-        conn.close()
         logging.debug(f'Created DB hh_superjob_data')
 
     @classmethod
@@ -43,10 +42,10 @@ class DBCreator:
         cur.execute('''
         CREATE TABLE IF NOT EXISTS employers(
         id INT,
-        name VARCHAR(100) NOT NULL,
-        industry VARCHAR(500),
+        name VARCHAR(200) NOT NULL,
+        industry VARCHAR(800),
         vac_count INT,
-        url VARCHAR(100) NOT NULL,
+        url VARCHAR(200) NOT NULL,
         PRIMARY KEY(id))
         ''')
         cur.execute('''
@@ -77,7 +76,6 @@ class DBCreator:
         blacklisted BOOL,
         PRIMARY KEY(id))
         ''')
-        conn.close()
         logging.debug(f'Created DB\'s tables')
 
 
@@ -113,7 +111,6 @@ class DBManager:
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
                             (vac_id, employer_id, name, area, salary, currency, gross, schedule,
                              requirement, responsibility, url))
-        conn.close()
         logging.debug(f'Added vacancy {name}, URL: {url} to DB')
 
     @classmethod
@@ -134,7 +131,6 @@ class DBManager:
                 id, name, industry, vac_count, url)
                 VALUES(%s, %s, %s, %s, %s)
                 ''', (comp_id, name, industry, vac_count, url))
-        conn.close()
         logging.debug(f'Added company {name}, URL: {url} to DB')
 
     @classmethod
@@ -146,7 +142,6 @@ class DBManager:
                         id, blacklisted)
                         VALUES (%s, %s)''',
                             (vac_id, blacklisted))
-        conn.close()
         logging.debug(f'Added vacancy {vac_id}, Blacklisted: {blacklisted} to blacklist')
 
     @classmethod
@@ -158,7 +153,6 @@ class DBManager:
                             id, blacklisted)
                             VALUES (%s, %s)''',
                             (emp_id, blacklisted))
-        conn.close()
         logging.debug(f'Added employer {emp_id}, Blacklisted: {blacklisted} to blacklist')
 
     @classmethod
@@ -175,7 +169,6 @@ class DBManager:
                 if cur.fetchall():
                     logging.debug(f'Vacancy {vac_id} is in the blacklist')
                     return True
-        conn.close()
         logging.debug(f'Vacancy {vac_id} is not in the blacklist')
 
     @classmethod
@@ -191,7 +184,6 @@ class DBManager:
                 cur.execute(f'''SELECT * FROM blacklisted_employers WHERE id = {emp_id}''')
                 if cur.fetchall():
                     logging.debug(f'Company {emp_id} is in the blacklist')
-                    conn.close()
                     return True
         logging.debug(f'Company {emp_id} is not in the blacklist')
 
@@ -222,7 +214,6 @@ class DBManager:
                 else:
                     print('Такого ID нет в списке')
                     logging.debug(f'Finished {currentframe().f_code.co_name} func without result')
-        conn.close()
 
     @classmethod
     def remove_employer_from_blacklist(cls) -> None:
@@ -251,8 +242,7 @@ class DBManager:
                 else:
                     print('Такого ID нет в списке')
                     logging.debug(f'Finished {currentframe().f_code.co_name} func without result')
-        conn.close()
-    
+
     @classmethod
     def check_vacancy_in_db(cls, vac_id: int) -> bool:
         """
@@ -266,7 +256,6 @@ class DBManager:
                 if cur.fetchall():
                     logging.debug(f'Vacancy {vac_id} is in the list')
                     return True
-        conn.close()
         logging.debug(f'Vacancy {vac_id} is not in the list')
 
     @classmethod
@@ -282,7 +271,6 @@ class DBManager:
                 if cur.fetchall():
                     logging.debug(f'Employer {emp_id} is in the list')
                     return True
-        conn.close()
         logging.debug(f'Employer {emp_id} is not in the list')
 
     @classmethod
@@ -297,7 +285,6 @@ class DBManager:
                 for idx, company in enumerate(cur.fetchall(), start=1):
                     print(f"""№{idx}\nID: {company[0]}. 
                     Компания: {company[1]}. Кол-во вакансий: {company[2]}.""")
-        conn.close()
         logging.debug(f'Got list of vacancies and their count')
 
     @classmethod
@@ -314,7 +301,6 @@ class DBManager:
                     comp_name = cur.fetchall()
                     print(f"""№{idx}\n Компания: {comp_name[0][0]} Вакансия: {vacancy[2]}.
                     ЗП: {vacancy[4]}. URL: {vacancy[10]}""")
-        conn.close()
         logging.debug(f'Got all vacancies')
 
     @classmethod
@@ -327,7 +313,6 @@ class DBManager:
             with conn.cursor() as cur:
                 cur.execute(f'''SELECT AVG(salary) FROM vacancies''')
                 print(f'Средняя зп вакансий: {round(cur.fetchall()[0][0], 0)}')
-        conn.close()
         logging.debug(f'Got avg salary')
 
     @classmethod
@@ -346,7 +331,6 @@ class DBManager:
                     print(f"№{idx}\n"
                           f"Компания: {comp_name[0][0]} Вакансия: {vacancy[2]}. "
                           f"ЗП: {vacancy[4]}. URL: {vacancy[10]}")
-        conn.close()
         logging.debug(f'Got vacancies with high salary')
 
     @classmethod
@@ -367,4 +351,3 @@ class DBManager:
                         print(f"№{idx}\nКомпания: {comp_name[0][0]} Вакансия: {vacancy[2]}."
                               f"ЗП: {vacancy[4]}. URL: {vacancy[10]}")
                         logging.debug(f'Got vacancies with keyword {vacancy_keyword}')
-        conn.close()

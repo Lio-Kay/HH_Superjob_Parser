@@ -200,7 +200,7 @@ def get_employers_hh(HH_API, hh_emp_params) -> None:
         if user_choice == 1:
             DBManager.save_employer_to_db(comp_id=emp_id, name=emp_name, industry=emp_industry,
                                           vac_count=emp_vac_count, url=emp_url)
-            save_user_choice = input('Сохранить все вакансии копании в файл?\n'
+            save_user_choice = input('Сохранить все вакансии компании в файл?\n'
                                      '1 - Да\n2 - Нет (по умолчанию)\n')
             if save_user_choice == '1':
                 if emp_vac_count == 0:

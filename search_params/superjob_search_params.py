@@ -63,8 +63,6 @@ class SuperjobVacSearchParams:
 
     @update_region_and_region_id.setter
     def update_region_and_region_id(self, new_region: str) -> None:
-        print(new_region)
-        print(self.update_region_and_region_id)
         new_region: str = new_region.casefold()
         results = self.update_region_loop(new_region)
         # Если ничего не нашли - повторяем поиск
@@ -247,7 +245,7 @@ class SuperjobEmpSearchParams:
     page = 0
 
     def __init__(self, text: str = '', region: str = 'Москва',
-                 region_id: int = 4, only_with_vacancies: bool = True):
+                 region_id: int = 4, only_with_vacancies: int = 0):
         """
         :param text: Ключевые слова на языке запросов.
         :param region: Название региона.
@@ -258,13 +256,13 @@ class SuperjobEmpSearchParams:
         self.__text: str = text
         self.__region: str = region
         self.__region_id: int = region_id
-        self.__only_with_vacancies: bool = only_with_vacancies
+        self.__only_with_vacancies: int = only_with_vacancies
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.__text},{self.__region},{self.__region_id})'
 
     def __str__(self):
-        return f'Параметры поиска:\nТекст для поиска: {self.__text}, Область поиска: {self.__region}.' \
+        return f'Параметры поиска:\nТекст для поиска: {self.__text}, Область поиска: {self.__region},' \
                f'Только с вакансиями: {self.__only_with_vacancies}'
 
     @property
@@ -336,12 +334,12 @@ class SuperjobEmpSearchParams:
     @update_show_without_vac.setter
     def update_show_without_vac(self, value) -> None:
         if value == '1':
-            self.__only_with_vacancies = False
+            self.__only_with_vacancies = 1
         elif value == '2':
-            self.__only_with_vacancies = True
+            self.__only_with_vacancies = 0
         else:
             print('Неверный ввод')
-            self.__only_with_vacancies = True
+            self.__only_with_vacancies = 0
 
     def superjob_set_params_for_a_search(self) -> None:
         """
@@ -360,7 +358,7 @@ class SuperjobEmpSearchParams:
         self.update_show_without_vac = \
             input('Показывать компании без вакансий?\n1 - Да\n2 - Нет (по умолчанию)\n')
 
-        print(f'\n---НОВЫЕ ПАРАМЕТРЫ hh.ru---\n'
+        print(f'\n---НОВЫЕ ПАРАМЕТРЫ superjob.ru---\n'
               f'Текст поиска: {self.update_search_txt}\n'
               f'Регион: {self.update_region_and_region_id[1]}\n'
               f'Только с активными вакансиями: {self.update_show_without_vac}\n')

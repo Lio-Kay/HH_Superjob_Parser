@@ -93,7 +93,7 @@ class HeadHunterAPI(AbstractAPI):
         :param params: Данные из экземпляра класса hh_params в user_interface() main.py
         :return: Список вакансий на основании запроса
         """
-        data: dict = requests.get(url=cls.vacancies_api, params=params, timeout=10).json()
+        data: dict = requests.get(url=cls.vacancies_api, params=params, timeout=20).json()
 
         return data
 
@@ -104,7 +104,7 @@ class HeadHunterAPI(AbstractAPI):
         :param params: Данные из экземпляра класса hh_params в user_interface() main.py
         :return: Список компаний на основании запроса
         """
-        data: dict = requests.get(url=cls.employers_api, params=params, timeout=10).json()
+        data: dict = requests.get(url=cls.employers_api, params=params, timeout=20).json()
 
         return data
 
@@ -116,7 +116,7 @@ class HeadHunterAPI(AbstractAPI):
         :return: Данные по работодателю
         """
         emp_id: str = str(emp_id)
-        data: dict = requests.get(cls.employers_api + emp_id, timeout=10).json()
+        data: dict = requests.get(cls.employers_api + emp_id, timeout=20).json()
 
         return data
 
@@ -127,7 +127,7 @@ class HeadHunterAPI(AbstractAPI):
         :param params: Ввод пользователя для получения списка регионов
         :return: Список регионов с наименованием региона и id
         """
-        data: dict = requests.get(url=cls.regions_api, params=params, timeout=10).json()
+        data: dict = requests.get(url=cls.regions_api, params=params, timeout=20).json()
 
         return data
 
@@ -148,10 +148,10 @@ class SuperJobAPI(AbstractAPI):
     @classmethod
     def test_connection(cls) -> None:
         """Проверка соединения"""
-        if requests.get(cls.vacancies_api, headers=cls.headers, timeout=10).status_code == 200:
+        if requests.get(cls.vacancies_api, headers=cls.headers, timeout=20).status_code == 200:
             print(f'Подключение к {cls.__name__} успешно')
         else:
-            print(requests.get(cls.vacancies_api, headers=cls.headers, timeout=10).status_code)
+            print(requests.get(cls.vacancies_api, headers=cls.headers, timeout=20).status_code)
 
     @classmethod
     def get_vacancies(cls, params) -> dict:
@@ -170,7 +170,23 @@ class SuperJobAPI(AbstractAPI):
                                                      f'count={1}&' \
                                                      f'page={params.page}'
 
-        data: dict = requests.get(url=cls.vacancies_api, headers=cls.headers, timeout=10).json()
+        data: dict = requests.get(url=cls.vacancies_api, headers=cls.headers, timeout=20).json()
+
+        return data
+
+    @classmethod
+    def get_vacancies_by_id(cls, params) -> dict:
+        """
+        Получение вакансии по id
+        :param params: Данные из экземпляра класса superjob_params в user_interface() main.py
+        :return: Список вакансий на основании запроса
+        """
+        cls.vacancies_api: str = 'https://api.superjob.ru/2.0/vacancies/'
+        cls.vacancies_api: str = cls.vacancies_api + f'?id_client={params.get("id_client")}&' \
+                                                     f'count={1}' \
+                                                     f'page={params.get("page")}'
+
+        data: dict = requests.get(url=cls.vacancies_api, headers=cls.headers, timeout=20).json()
 
         return data
 
@@ -181,14 +197,14 @@ class SuperJobAPI(AbstractAPI):
         :param params: Данные из экземпляра класса superjob_params в user_interface() main.py
         :return: Список компаний на основании запроса
         """
-        cls.employers_api: str = 'https://api.superjob.ru/2.0/vacancies/'
+        cls.employers_api: str = 'https://api.superjob.ru/2.0/clients/'
         cls.employers_api: str = cls.employers_api + f'?keyword={params.update_search_txt}&' \
                                                      f't={params.update_region_and_region_id[0]}&' \
                                                      f'all={params.update_show_without_vac}&' \
                                                      f'count={1}&' \
                                                      f'page={params.page}'
 
-        data: dict = requests.get(url=cls.employers_api, headers=cls.headers, timeout=10).json()
+        data: dict = requests.get(url=cls.employers_api, headers=cls.headers, timeout=20).json()
 
         return data
 
@@ -200,7 +216,7 @@ class SuperJobAPI(AbstractAPI):
         :return: Данные по работодателю
         """
         emp_id: str = str(emp_id)
-        data: dict = requests.get(cls.employers_api + emp_id, headers=cls.headers, timeout=10).json()
+        data: dict = requests.get(cls.employers_api + emp_id, headers=cls.headers, timeout=20).json()
 
         return data
 
@@ -213,6 +229,6 @@ class SuperJobAPI(AbstractAPI):
         """
         cls.regions_api: str = 'https://api.superjob.ru/2.0/towns/'
         cls.regions_api = cls.regions_api + f'?keyword={params}&all=0&genitive=1'
-        data = requests.get(url=cls.regions_api, headers=cls.headers, timeout=10)
+        data = requests.get(url=cls.regions_api, headers=cls.headers, timeout=20)
 
         return data.json()
